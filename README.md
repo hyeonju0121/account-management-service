@@ -7,6 +7,9 @@
 
 <br>
 
+## 프로젝트 구조
+<img src="https://github.com/hyeonju0121/account-management-service/assets/67223214/fb3bcede-c5ca-4c36-89ca-e91d7c03f424" width="800" height="400"/>
+
 ## ERD
 ![account_ERD](https://github.com/hyeonju0121/account-management-service/assets/67223214/a4f5d9c2-4b9e-4e08-8a2b-ef413824d9fd)
 
