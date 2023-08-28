@@ -6,6 +6,7 @@ import com.example.fintech.production.dto.ProductionDto;
 import com.example.fintech.production.service.ProductionService;
 import com.example.fintech.production.type.InterestPaymentMethod;
 import com.example.fintech.production.type.NumMonthlyPayments;
+import com.example.fintech.production.type.ProductionStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -64,6 +68,30 @@ public class ProductionControllerTest {
                 .andExpect(jsonPath("$.contractPeriod").value(6))
                 .andExpect(jsonPath("$.maxMonthlySavings").value(3000000L))
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("계좌 상품 판매 중지")
+    void successStopProduction() throws Exception {
+        //given
+        Long productionId = 1L;
+        ProductionDto updatedProductionDto = ProductionDto.builder()
+                .productionStatus(ProductionStatus.SUSPENSION_OF_SALES)
+                .build();
+
+        when(productionService.stopProduction(productionId))
+                .thenReturn(updatedProductionDto);
+
+        //when, then
+        mockMvc.perform(put("/production/stop")
+                        .param("productionId", productionId.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.productionStatus").value("SUSPENSION_OF_SALES"))
+                .andDo(print());
+
+        verify(productionService).stopProduction(productionId);
     }
 
     private ProductionDto getProductionDto() {

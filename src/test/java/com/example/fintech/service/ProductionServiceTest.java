@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -73,6 +74,21 @@ public class ProductionServiceTest {
                         "maturity_date", "free",
                         3000000L)
         );
+    }
+
+    @Test
+    @DisplayName("계좌 상품 판매 중지 서비스 테스트")
+    void stopProductionSuccess() {
+        //given
+        Production production = getProduction();
+        given(productionRepository.findById(anyLong()))
+                .willReturn(Optional.of(production));
+
+        //when
+        productionService.stopProduction(1L);
+
+        //then
+        assertThat(production.getProductionStatus()).isEqualTo(ProductionStatus.SUSPENSION_OF_SALES);
     }
 
     private Production getProduction() {

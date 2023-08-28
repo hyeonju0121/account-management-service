@@ -1,11 +1,10 @@
 package com.example.fintech.production.controller;
 
 import com.example.fintech.production.dto.CreateProduction;
+import com.example.fintech.production.dto.StopProduction;
 import com.example.fintech.production.service.ProductionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +28,16 @@ public class ProductionController {
                         request.getNumMonthlyPayments(),
                         request.getMaxMonthlySavings());
         return CreateProduction.Response.from(result);
+    }
+
+    /**
+     * 계좌 상품 판매 중지 API
+     */
+    @PutMapping ("/production/stop")
+    public StopProduction.Response stopProduction(
+            @RequestParam Long productionId){
+
+        var result = this.productionService.stopProduction(productionId);
+        return StopProduction.Response.from(result);
     }
 }

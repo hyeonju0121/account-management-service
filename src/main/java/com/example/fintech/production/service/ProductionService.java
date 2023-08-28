@@ -70,4 +70,21 @@ public class ProductionService {
 
         return ProductionDto.fromEntity(production);
     }
+
+    /**
+     * 계좌 상품 판매 중지
+     */
+    @Transactional
+    public ProductionDto stopProduction(Long productionId) {
+
+        // 해당 계좌 상품 이름이 존재하는 경우 오류 처리
+        Production production = this.productionRepository.findById(productionId)
+                .orElseThrow(() -> new RuntimeException("해당 계좌 상품이 존재하지 않습니다."));
+
+        production.setProductionStatus(ProductionStatus.SUSPENSION_OF_SALES);
+
+        this.productionRepository.save(production);
+
+        return ProductionDto.fromEntity(production);
+    }
 }
