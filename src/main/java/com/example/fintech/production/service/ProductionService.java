@@ -96,7 +96,7 @@ public class ProductionService {
     public ProductionDto updateProduction(Long productionId,
                                           String productionTitle,
                                           String productionContents) {
-        // 해당 계좌 상품 이름이 존재하지 않는 경우 오류 처리
+        // 해당 계좌 상품이 존재하지 않는 경우 오류 처리
         Production production = this.productionRepository.findById(productionId)
                 .orElseThrow(() -> new RuntimeException("해당 계좌 상품이 존재하지 않습니다."));
 
