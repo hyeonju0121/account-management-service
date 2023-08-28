@@ -46,3 +46,12 @@ Content-Type: application/json
 ### stopProduction
 PUT http://localhost:8080/production/stop?productionId=1
 Content-Type: application/json
+
+### updateProduction
+PUT http://localhost:8080/production/update/2
+Content-Type: application/json
+
+{
+  "productionTitle": "도비 적금",
+  "productionContents": "도비는 자유예요!"
+}

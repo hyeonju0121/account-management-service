@@ -2,6 +2,7 @@ package com.example.fintech.service;
 
 import com.example.fintech.production.domain.Production;
 import com.example.fintech.production.domain.ProductionCategory;
+import com.example.fintech.production.dto.ProductionDto;
 import com.example.fintech.production.repository.ProductionCategoryRepository;
 import com.example.fintech.production.repository.ProductionRepository;
 import com.example.fintech.production.service.ProductionService;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductionServiceTest {
@@ -89,6 +91,29 @@ public class ProductionServiceTest {
 
         //then
         assertThat(production.getProductionStatus()).isEqualTo(ProductionStatus.SUSPENSION_OF_SALES);
+    }
+
+    @Test
+    @DisplayName("계좌 상품 수정 서비스 테스트")
+    void updateProductionSuccess() {
+        //given
+        Long productionId = 1L;
+        String updatedTitle = "Updated Title";
+        String updatedContents = "Updated Contents";
+
+        Production production = new Production();
+        production.setId(productionId);
+        when(productionRepository.findById(productionId)).thenReturn(Optional.of(production));
+
+        // When
+        ProductionDto result = productionService.updateProduction(productionId, updatedTitle, updatedContents);
+
+        // Then
+        assertThat(result.getProductionTitle()).isEqualTo(updatedTitle);
+        assertThat(result.getProductionContents()).isEqualTo(updatedContents);
+
+        verify(productionRepository).findById(productionId);
+        verify(productionRepository).save(production);
     }
 
     private Production getProduction() {

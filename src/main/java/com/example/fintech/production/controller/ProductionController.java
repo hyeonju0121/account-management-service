@@ -2,6 +2,7 @@ package com.example.fintech.production.controller;
 
 import com.example.fintech.production.dto.CreateProduction;
 import com.example.fintech.production.dto.StopProduction;
+import com.example.fintech.production.dto.UpdateProduction;
 import com.example.fintech.production.service.ProductionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -39,5 +40,19 @@ public class ProductionController {
 
         var result = this.productionService.stopProduction(productionId);
         return StopProduction.Response.from(result);
+    }
+
+    /**
+     * 계좌 상품 수정 API
+     */
+    @PutMapping("/production/update/{productionId}")
+    public UpdateProduction.Response updateProduction(
+            @PathVariable Long productionId,
+            @RequestBody UpdateProduction.Request request) {
+
+        var result = this.productionService.updateProduction(productionId,
+                request.getProductionTitle(), request.getProductionContents());
+
+        return UpdateProduction.Response.from(result);
     }
 }
