@@ -84,8 +84,7 @@ public class ProductionControllerTest {
                 .thenReturn(updatedProductionDto);
 
         //when, then
-        mockMvc.perform(put("/production/stop")
-                        .param("productionId", productionId.toString())
+        mockMvc.perform(put("/production/stop/{productionId}", productionId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
