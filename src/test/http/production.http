@@ -1,0 +1,44 @@
+### createProduction
+POST http://localhost:8080/production
+Content-Type: application/json
+
+{
+  "productionCategoryId": 1,
+  "productionTitle": "입출금 통장",
+  "productionContents": "자유로운 입출금과 하루만 넣어도 이자가 쌓이는 통장",
+  "contractPeriod": 0,
+  "interestRate": 2.0,
+  "interestPaymentMethod": "the_first_day_of_every_month",
+  "numMonthlyPayments": "free",
+  "maxMonthlySavings": ""
+}
+
+### createProduction
+POST http://localhost:8080/production
+Content-Type: application/json
+
+{
+  "productionCategoryId": 2,
+  "productionTitle": "프리 적금",
+  "productionContents": "매일, 매주, 매월 자유롭게 적금 운용해보세요. 매달 최대 300만원까지 저금이 가능합니다.",
+  "contractPeriod": 6,
+  "interestRate": 2.0,
+  "interestPaymentMethod": "maturity_date",
+  "numMonthlyPayments": "free",
+  "maxMonthlySavings": 3000000
+}
+
+### createProduction
+POST http://localhost:8080/production
+Content-Type: application/json
+
+{
+  "productionCategoryId": 3,
+  "productionTitle": "키워봐요 적금",
+  "productionContents": "자유 적금이 자신 없나요? 그럼, 정기적금만이 살 길이다.",
+  "contractPeriod": 12,
+  "interestRate": 3.5,
+  "interestPaymentMethod": "maturity_date",
+  "numMonthlyPayments": "once_a_month",
+  "maxMonthlySavings": 800000
+}

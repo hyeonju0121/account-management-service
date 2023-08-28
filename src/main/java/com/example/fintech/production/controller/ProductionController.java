@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class ProductionController {
-
     private final ProductionService productionService;
 
     /**
@@ -20,6 +19,15 @@ public class ProductionController {
     public CreateProduction.Response createProduction(
             @RequestBody CreateProduction.Request request) {
 
-        return null;
+        var result = this.productionService.createProduction(
+                        request.getProductionCategoryId(),
+                        request.getProductionTitle(),
+                        request.getProductionContents(),
+                        request.getContractPeriod(),
+                        request.getInterestRate(),
+                        request.getInterestPaymentMethod(),
+                        request.getNumMonthlyPayments(),
+                        request.getMaxMonthlySavings());
+        return CreateProduction.Response.from(result);
     }
 }
