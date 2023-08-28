@@ -3,6 +3,7 @@ package com.example.fintech.controller;
 import com.example.fintech.production.controller.ProductionController;
 import com.example.fintech.production.dto.CreateProduction;
 import com.example.fintech.production.dto.ProductionDto;
+import com.example.fintech.production.dto.UpdateProduction;
 import com.example.fintech.production.service.ProductionService;
 import com.example.fintech.production.type.InterestPaymentMethod;
 import com.example.fintech.production.type.NumMonthlyPayments;
@@ -83,8 +84,7 @@ public class ProductionControllerTest {
                 .thenReturn(updatedProductionDto);
 
         //when, then
-        mockMvc.perform(put("/production/stop")
-                        .param("productionId", productionId.toString())
+        mockMvc.perform(put("/production/stop/{productionId}", productionId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -92,6 +92,35 @@ public class ProductionControllerTest {
                 .andDo(print());
 
         verify(productionService).stopProduction(productionId);
+    }
+
+    @Test
+    @DisplayName("계좌 상품 수정")
+    void successUpdateProduction() throws Exception {
+        //given
+        Long productionId = 1L;
+        String productionTitle = "Updated Title";
+        String productionContents = "Updated Contents";
+
+        ProductionDto updatedProductionDto = ProductionDto.builder()
+                .productionTitle(productionTitle)
+                .productionContents(productionContents)
+                .build();
+
+        when(productionService.updateProduction(
+                eq(productionId), eq(productionTitle), eq(productionContents)))
+                .thenReturn(updatedProductionDto);
+
+        //when, then
+        mockMvc.perform(put("/production/update/{productionId}", productionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UpdateProduction.Request(productionTitle, productionContents))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.productionTitle").value(productionTitle))
+                .andExpect(jsonPath("$.productionContents").value(productionContents))
+                .andDo(print());
+
+        verify(productionService).updateProduction(productionId, productionTitle, productionContents);
     }
 
     private ProductionDto getProductionDto() {
