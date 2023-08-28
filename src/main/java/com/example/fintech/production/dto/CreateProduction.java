@@ -1,18 +1,51 @@
 package com.example.fintech.production.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.example.fintech.production.type.InterestPaymentMethod;
+import com.example.fintech.production.type.NumMonthlyPayments;
+import lombok.*;
 
 public class CreateProduction {
 
     @Getter
     @Setter
-    public static class Request(Long productionCategoryId,
-                                String title, String contents, int contractPeriod,
-                                double interestRate, ) {
+    @AllArgsConstructor
+    public static class Request {
+        private Long productionCategoryId;
+        private String productionTitle;
+        private String productionContents;
+        private int contractPeriod;
+        private double interestRate;
+        private String interestPaymentMethod;
+        private String numMonthlyPayments;
+        private Long maxMonthlySavings;
+    }
 
-        //계좌 상품 식별 번호, 상품 이름, 상품 설명, 계약 기간,
-        // 금리, 이자 지급 방식, 매월 납입 횟수, 매일 최대 저금 금액
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Response {
+        private Long productionId;
+        private String productionTitle;
+        private String productionContents;
+        private int contractPeriod;
+        private double interestRate;
+        private InterestPaymentMethod interestPaymentMethod;
+        private NumMonthlyPayments numMonthlyPayments;
+        private Long maxMonthlySavings;
 
+        public static Response from(ProductionDto productionDto){
+            return Response.builder()
+                    .productionId(productionDto.getProductionId())
+                    .productionTitle(productionDto.getProductionTitle())
+                    .productionContents(productionDto.getProductionContents())
+                    .contractPeriod(productionDto.getContractPeriod())
+                    .interestRate(productionDto.getInterestRate())
+                    .interestPaymentMethod(productionDto.getInterestPaymentMethod())
+                    .numMonthlyPayments(productionDto.getNumMonthlyPayments())
+                    .maxMonthlySavings(productionDto.getMaxMonthlySavings())
+                    .build();
+        }
     }
 }
