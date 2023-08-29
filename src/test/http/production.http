@@ -55,3 +55,11 @@ Content-Type: application/json
   "productionTitle": "도비 적금",
   "productionContents": "도비는 자유예요!"
 }
+
+### searchProduction
+GET http://localhost:8080/production
+Content-Type: application/json
+
+### searchOneProduction
+GET http://localhost:8080/production/1
+Content-Type: application/json

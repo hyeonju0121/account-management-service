@@ -22,8 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -122,6 +121,35 @@ public class ProductionControllerTest {
 
         verify(productionService).updateProduction(productionId, productionTitle, productionContents);
     }
+
+    @Test
+    @DisplayName("계좌 상품 전체 조회")
+    void successSearchProduction() throws Exception {
+        //given
+
+        //when, then
+        mockMvc.perform(get("/production"))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        verify(productionService).getAllProduction();
+    }
+
+    @Test
+    @DisplayName("계좌 상품 단건 조회")
+    void successSearchOneProduction() throws Exception {
+        //given
+        Long productionId = 1L;
+
+        //when
+        mockMvc.perform(get("/production/{productionId}", productionId))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        //then
+        verify(productionService).getOneProduction(productionId);
+    }
+
 
     private ProductionDto getProductionDto() {
         return ProductionDto.builder()
