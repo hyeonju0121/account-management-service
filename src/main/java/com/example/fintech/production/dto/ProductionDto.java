@@ -6,6 +6,8 @@ import com.example.fintech.production.type.NumMonthlyPayments;
 import com.example.fintech.production.type.ProductionStatus;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,6 +24,8 @@ public class ProductionDto {
     private Long maxMonthlySavings;
     private ProductionStatus productionStatus;
     private Long totalAccountsNums;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     // Entity -> Dto 변환
     public static ProductionDto fromEntity(Production production) {
@@ -36,6 +40,8 @@ public class ProductionDto {
                 .maxMonthlySavings(production.getMaxMonthlySavings())
                 .productionStatus(production.getProductionStatus())
                 .totalAccountsNums(production.getTotalAccountsNum())
+                .createdAt(production.getCreatedAt())
+                .updatedAt(production.getUpdatedAt())
                 .build();
     }
 }

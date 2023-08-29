@@ -10,9 +10,11 @@ import com.example.fintech.production.type.NumMonthlyPayments;
 import com.example.fintech.production.type.ProductionStatus;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -111,4 +113,29 @@ public class ProductionService {
 
         return ProductionDto.fromEntity(production);
     }
+
+    /**
+     * 계좌 상품 전체 조회
+     */
+    @Transactional(readOnly = true)
+    public List<ProductionDto> getAllProduction() {
+
+        List<Production> productions = this.productionRepository.findAll();
+
+        return productions.stream()
+                .map(ProductionDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 계좌 상품 단건 조회
+     */
+    @Transactional(readOnly = true)
+    public ProductionDto getOneProduction(Long productionId) {
+        var production = this.productionRepository.findById(productionId)
+                .orElseThrow(() -> new RuntimeException("해당 계좌 상품이 존재하지 않습니다."));
+
+        return ProductionDto.fromEntity(production);
+    }
+
 }

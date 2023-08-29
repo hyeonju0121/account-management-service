@@ -17,14 +17,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductionServiceTest {
@@ -115,6 +116,44 @@ public class ProductionServiceTest {
         verify(productionRepository).findById(productionId);
         verify(productionRepository).save(production);
     }
+
+    @Test
+    @DisplayName("계좌 상품 전체 조회 서비스 테스트")
+    void getAllProductionsSuccess() {
+        //given
+        List<Production> productions = new ArrayList<>();
+        productions.add(getProduction());
+        productions.add(getProduction());
+
+        given(productionRepository.findAll()).willReturn(productions);
+
+        //when
+        List<ProductionDto> productionDtoList = productionService.getAllProduction();
+
+        //then
+        assertThat(productionDtoList.size()).isEqualTo(2);
+
+        verify(productionRepository, times(1)).findAll(); // findAll 한 번만 호출되는 지 검증
+    }
+
+    @Test
+    @DisplayName("계좌 상품 단건 조회 서비스 테스트")
+    void getOneProductionSuccess() {
+        //given
+        Long productionId = 2L;
+
+        Production production = getProduction();
+
+        given(productionRepository.findById(productionId))
+                .willReturn(Optional.of(production));
+
+        //when
+        ProductionDto productionDto = productionService.getOneProduction(productionId);
+
+        //then
+        assertThat(productionDto.getProductionId()).isEqualTo(production.getId());
+    }
+
 
     private Production getProduction() {
         return Production.builder()
