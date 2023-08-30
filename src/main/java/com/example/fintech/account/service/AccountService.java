@@ -79,23 +79,8 @@ public class AccountService {
         account.setRegisteredAt(LocalDateTime.now());
 
         this.accountRepository.save(account);
-        this.plusTotalUsers(productionId);
 
         return AccountDto.fromEntity(account);
-    }
-
-
-    /**
-     * 계좌 개설 시, 해당 계좌 상품 사용자 업데이트
-     */
-    public void plusTotalUsers(Long productionId) {
-        var production = this.productionRepository.findById(productionId).get();
-
-        Long totalUser = new Long(
-                this.accountRepository.findByProduction_id(productionId).size());
-
-        production.setTotalAccountsNum(totalUser);
-        this.productionRepository.save(production);
     }
 
     /**
