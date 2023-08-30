@@ -9,6 +9,7 @@ public class CreateAccount {
     @Getter
     @Setter
     @AllArgsConstructor
+    @Builder
     public static class Request {
         private String memberId;
         private Long productionId; // 가입할 계좌 상품 번호
