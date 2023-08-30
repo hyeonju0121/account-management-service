@@ -36,10 +36,6 @@ public class AccountService {
         Member member = this.memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
-        // test
-        boolean re = this.productionRepository.existsById(productionId);
-        System.out.println("exists 테스트 (productionId 존재하는가?)-> " + re);
-
         // 사용자 보유 계좌 조회 -> 5개 이상이면 계좌 개설할 수 없으므로 에러 발생
         int totalAccountNum =
                 this.accountRepository.findByMember_id(member.getId()).size();
