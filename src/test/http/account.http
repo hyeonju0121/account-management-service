@@ -1,0 +1,29 @@
+### createAccount
+POST http://localhost:8080/account
+Content-Type: application/json
+
+{
+  "memberId": "hyeonju0121",
+  "productionId": 1,
+  "balance": 5000
+}
+
+### createAccount
+POST http://localhost:8080/account
+Content-Type: application/json
+
+{
+  "memberId": "hyeonju0121",
+  "productionId": 2,
+  "balance": 12000
+}
+
+### createAccount
+POST http://localhost:8080/account
+Content-Type: application/json
+
+{
+  "memberId": "hyeonju0121",
+  "productionId": 3,
+  "balance": 8000
+}
