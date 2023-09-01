@@ -44,8 +44,12 @@ Content-Type: application/json
 }
 
 ### stopProduction
-PUT http://localhost:8080/production/stop/1
+DELETE http://localhost:8080/production
 Content-Type: application/json
+
+{
+  "productionId": 3
+}
 
 ### updateProduction
 PUT http://localhost:8080/production/update/2
