@@ -1,13 +1,15 @@
 package com.example.fintech.account.dto;
 
+import com.example.fintech.account.type.AccountStatus;
 import com.example.fintech.production.type.ProductionType;
 import lombok.*;
 
-import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-public class CreateAccount {
+public class DeleteAccount {
     @Getter
     @Setter
     @AllArgsConstructor
@@ -15,11 +17,13 @@ public class CreateAccount {
     public static class Request {
         @NotNull
         private String memberId;
-        @NotNull
-        private Long productionId; // 가입할 계좌 상품 번호
-        @NotNull
-        @Min(0)
-        private Long balance;
+        @NotBlank
+        private String accountNumber;
+        @NotBlank
+        @Size(min = 6, max = 6, message = "6자리 간편비밀번호를 입력해주세요.")
+        private String simplePassword;
+
+        private String transferAccountNumber; // 적금 상품 해지시, 이체받을 계좌번호
     }
 
     @Getter
@@ -31,21 +35,20 @@ public class CreateAccount {
         private String memberId;
         private String memberName;
         private String accountNumber;
-        private Long productionId;
         private ProductionType productionType;
-        private LocalDateTime registeredAt;
-        private LocalDateTime maturityAt;
+        private AccountStatus accountStatus;
+        private LocalDateTime unRegisteredAt;
 
-        public static Response from(AccountDto accountDto){
+        public static DeleteAccount.Response from(AccountDto accountDto){
             return Response.builder()
                     .memberId(accountDto.getMemberId())
                     .memberName(accountDto.getMemberName())
                     .accountNumber(accountDto.getAccountNumber())
-                    .productionId(accountDto.getProduction())
                     .productionType(accountDto.getProductionType())
-                    .registeredAt(accountDto.getRegisteredAt())
-                    .maturityAt(accountDto.getMaturityAt())
+                    .accountStatus(accountDto.getAccountStatus())
+                    .unRegisteredAt(accountDto.getUnregisteredAt())
                     .build();
         }
     }
+
 }

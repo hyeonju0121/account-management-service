@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "memberId": "hyeonju0121",
   "productionId": 1,
-  "balance": 5000
+  "balance": 0
 }
 
 ### createAccount
@@ -26,4 +26,15 @@ Content-Type: application/json
   "memberId": "hyeonju0121",
   "productionId": 3,
   "balance": 8000
+}
+
+### deleteAccount
+DELETE http://localhost:8080/account
+Content-Type: application/json
+
+{
+  "memberId": "hyeonju0121",
+  "accountNumber": "981-1925-9394-59",
+  "simplePassword": "123456",
+  "transferAccountNumber": "989-5520-4912-11"
 }
