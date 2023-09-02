@@ -86,7 +86,7 @@ public class AccountService {
     /**
      * 데이터베이스 계좌 번호 중복 검사
      */
-    private String createUniqueAccountNumber() {
+    public String createUniqueAccountNumber() {
         String accountNumber;
         do {
             accountNumber = createAccountNumber();
@@ -97,7 +97,7 @@ public class AccountService {
     /**
      * 계좌 번호 생성
      */
-    private String createAccountNumber() {
+    public String createAccountNumber() {
         Random random = new Random();
         int w = random.nextInt(900) + 100; // 3자리수 100~999
         int x = random.nextInt(9000) + 1000; // 4자리수 1000~9999

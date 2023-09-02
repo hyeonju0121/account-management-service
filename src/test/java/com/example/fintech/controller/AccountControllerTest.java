@@ -42,17 +42,13 @@ public class AccountControllerTest {
         given(accountService.createAccount(anyString(), anyLong(), anyLong()))
                 .willReturn(getAccountDto());
 
-        CreateAccount.Request request = CreateAccount.Request.builder()
-                .memberId("hyeonju0121")
-                .productionId(1L)
-                .balance(5000L)
-                .build();
-
+        //when, then
         mockMvc.perform(post("/account")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(
+                                new CreateAccount.Request("hyeonju0121", 1L, 5000L)
+                        )))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accountNumber").value("714-3722-6286-62"))
                 .andExpect(jsonPath("$.memberId").value("hyeonju0121"))
                 .andExpect(jsonPath("$.memberName").value("유현주"))
