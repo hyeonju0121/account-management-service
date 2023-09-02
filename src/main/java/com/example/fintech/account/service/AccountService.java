@@ -122,9 +122,6 @@ public class AccountService {
         Long transferAccountBalance = transferAccount.getBalance() + account.getBalance();
         transferAccount.setBalance(transferAccountBalance);
         account.setBalance(0L);
-
-        this.accountRepository.save(transferAccount);
-        this.accountRepository.save(account);
     }
 
     /**
