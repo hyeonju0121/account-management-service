@@ -13,6 +13,7 @@ import com.example.fintech.production.type.ProductionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -81,17 +83,21 @@ public class ProductionServiceTest {
 
     @Test
     @DisplayName("계좌 상품 판매 중지 서비스 테스트")
-    void stopProductionSuccess() {
+    void stopProduction() {
         //given
         Production production = getProduction();
         given(productionRepository.findById(anyLong()))
                 .willReturn(Optional.of(production));
 
+        ArgumentCaptor<Production> captor = ArgumentCaptor.forClass(Production.class);
+
         //when
-        productionService.stopProduction(1L);
+        ProductionDto productionDto = productionService.stopProduction(1L);
 
         //then
-        assertThat(production.getProductionStatus()).isEqualTo(ProductionStatus.SUSPENSION_OF_SALES);
+        verify(productionRepository, times(1)).save(captor.capture());
+        assertEquals(2L, productionDto.getProductionId());
+        assertEquals(ProductionStatus.SUSPENSION_OF_SALES, captor.getValue().getProductionStatus());
     }
 
     @Test
@@ -161,6 +167,7 @@ public class ProductionServiceTest {
                         .id(2L)
                         .productionType(ProductionType.FREE_SAVINGS)
                         .build())
+                .id(2L)
                 .productionTitle("프리 적금")
                 .productionContents("매일, 매주, 매월 자유롭게 적금 운용해보세요. 매달 최대 300만원까지 저금이 가능합니다.")
                 .contractPeriod(6)

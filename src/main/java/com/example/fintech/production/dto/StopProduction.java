@@ -9,6 +9,10 @@ public class StopProduction {
     @NoArgsConstructor
     public static class Request {
         private Long productionId;
+
+        public Request(Long productionId) {
+            this.productionId = productionId;
+        }
     }
 
     @Getter
