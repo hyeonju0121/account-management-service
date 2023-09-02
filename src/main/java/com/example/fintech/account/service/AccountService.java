@@ -8,6 +8,7 @@ import com.example.fintech.member.domain.Member;
 import com.example.fintech.member.repository.MemberRepository;
 import com.example.fintech.production.domain.Production;
 import com.example.fintech.production.repository.ProductionRepository;
+import com.example.fintech.production.type.ProductionStatus;
 import com.example.fintech.production.type.ProductionType;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,22 +37,11 @@ public class AccountService {
         Member member = this.memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
-        // 사용자 보유 계좌 조회 -> 5개 이상이면 계좌 개설할 수 없으므로 에러 발생
-        int totalAccountNum =
-                this.accountRepository.findByMember_id(member.getId()).size();
-        if (totalAccountNum >= 5) {
-            throw new RuntimeException("계좌를 개설할 수 없습니다." +
-                    " 최대 보유 가능 계좌 수는 5개 입니다. 현재 계좌 개수 -> " + totalAccountNum);
-        }
-
-        // 초기 금액이 작은 경우, 에러 발생
-        if (balance < 5000) {
-            throw new RuntimeException("초기 금액은 5000원부터 입니다.");
-        }
-
         // 계좌 상품 종류가 존재하지 않는 상품인 경우 에러 발생
         Production production = this.productionRepository.findById(productionId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 계좌 상품입니다."));
+
+        this.validateCreateAccount(member, production);
 
         ProductionType type = production.getProductionCategory().getProductionType();
 
@@ -77,6 +67,20 @@ public class AccountService {
         this.accountRepository.save(account);
 
         return AccountDto.fromEntity(account);
+    }
+
+    /**
+     * 계좌 생성 검증 부분
+     */
+    private void validateCreateAccount(Member member, Production production) {
+        // 사용자 보유 계좌 확인
+        if(this.accountRepository.countByMember(member) >= 5) {
+            throw new RuntimeException("사용자 최대 보유 가능 계좌는 5개 입니다.");
+        }
+        // 계좌 상품 판매 상태 확인
+        if(production.getProductionStatus() == ProductionStatus.SUSPENSION_OF_SALES) {
+            throw new RuntimeException("판매 중지된 계좌 상품입니다.");
+        }
     }
 
     /**

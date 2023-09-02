@@ -9,23 +9,23 @@ import com.example.fintech.member.repository.MemberRepository;
 import com.example.fintech.production.domain.Production;
 import com.example.fintech.production.domain.ProductionCategory;
 import com.example.fintech.production.repository.ProductionRepository;
+import com.example.fintech.production.type.ProductionStatus;
 import com.example.fintech.production.type.ProductionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
@@ -41,58 +41,116 @@ public class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
+
     @Test
     @DisplayName("계좌 개설 서비스 테스트")
     void createAccountSuccess() {
-        //given
-        String memberId = "testMemberId";
-        Long productionId = 1L;
-        Long balance = 5000L;
+        // given
+        Member member = Member.builder()
+                .memberId("testMemberId")
+                .build();
 
-        Member member = new Member();
-        member.setId(1L);
+        ProductionCategory productionCategory = ProductionCategory.builder()
+                .id(1L)
+                .productionType(ProductionType.SAVINGS_ACCOUNT)
+                .build();
 
-        Production production = new Production();
-        production.setId(1L);
+        Production production = Production.builder()
+                .id(1L)
+                .productionCategory(productionCategory)
+                .build();
 
-        ProductionCategory productionCategory = new ProductionCategory();
-        productionCategory.setProductionType(ProductionType.FREE_SAVINGS);
-        production.setProductionCategory(productionCategory);
+        given(memberRepository.findByMemberId(anyString()))
+                .willReturn(Optional.of(member));
+        given(productionRepository.findById(anyLong()))
+                .willReturn(Optional.of(production));
 
-        given(memberRepository.findByMemberId(anyString())).willReturn(Optional.of(member));
-        given(productionRepository.findById(anyLong())).willReturn(Optional.of(production));
-        given(accountRepository.findByMember_id(anyLong())).willReturn(List.of(new Account(), new Account(), new Account(), new Account()));
+
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
 
         // when
-        AccountDto result = accountService.createAccount(memberId, productionId, balance);
+        AccountDto accountDto = accountService.createAccount("testMemberId", 1L, 5000L);
 
         // then
-        verify(accountRepository).save(any());
+        verify(accountRepository, times(1)).save(captor.capture());
+        assertEquals("testMemberId", accountDto.getMemberId());
+        assertEquals(1L, accountDto.getProduction());
     }
 
     @Test
-    @DisplayName("사용자 보유 계좌 5개 이상일 경우 예외 발생 테스트")
-    void createAccountWithThrowsException() {
+    @DisplayName("사용자가 존재하지 않는 경우 - 계좌 생성 실패")
+    void createAccountFailed_UserNotFound() {
         //given
-        String memberId = "testMemberId";
-        Long productionId = 1L;
-        Long balance = 5000L;
+        given(memberRepository.findByMemberId(anyString()))
+                .willReturn(Optional.empty());
 
-        Member member = new Member();
-        member.setId(1L);
-
-        List<Account> accounts = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Account account = new Account();
-            accounts.add(account);
-        }
-
-        when(memberRepository.findByMemberId(anyString())).thenReturn(Optional.of(member));
-        when(accountRepository.findByMember_id(anyLong())).thenReturn(accounts);
-
-        //when, then
+        //when
         assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(() -> accountService.createAccount(memberId, productionId, balance))
-                .withMessageContaining("계좌를 개설할 수 없습니다. 최대 보유 가능 계좌 수는 5개 입니다.");
+                .isThrownBy(() -> accountService.createAccount("testMemberId", 1L, 5000L))
+                .withMessageContaining("사용자가 존재하지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("사용자 보유 계좌 5개 이상인 경우 - 계좌 생성 실패")
+    void createAccountFailed_maxAccountIs5() {
+        //given
+        Member member = Member.builder()
+                .id(1L)
+                .memberId("testMemberId").build();
+        given(memberRepository.findByMemberId(anyString()))
+                .willReturn(Optional.of(member));
+
+        given(productionRepository.findById(anyLong()))
+                .willReturn(Optional.of(Production.builder()
+                        .id(1L).build()));
+
+        given(accountRepository.countByMember(any()))
+                .willReturn(5);
+
+        //when
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> accountService.createAccount("testMemberId", 1L, 5000L))
+                .withMessageContaining("사용자 최대 보유 가능 계좌는 5개 입니다.");
+    }
+
+    @Test
+    @DisplayName("계좌 상품 종류가 존재하지 않는 경우 - 계좌 생성 실패")
+    void createAccountFailed_ProductionNotFound() {
+        //given
+        Member member = Member.builder()
+                .id(1L)
+                .memberId("testMemberId").build();
+        given(memberRepository.findByMemberId(anyString()))
+                .willReturn(Optional.of(member));
+
+        given(productionRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        //when
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> accountService.createAccount("testMemberId", 1L, 5000L))
+                .withMessageContaining("존재하지 않는 계좌 상품입니다.");
+    }
+
+    @Test
+    @DisplayName("해당 계좌 상품이 판매 중지된 경우 - 계좌 생성 실패")
+    void createAccountFailed_ProductionAlreadySuspensionOfSales() {
+        //given
+        Member member = Member.builder()
+                .id(1L)
+                .memberId("testMemberId").build();
+        given(memberRepository.findByMemberId(anyString()))
+                .willReturn(Optional.of(member));
+
+        given(productionRepository.findById(anyLong()))
+                .willReturn(Optional.of(Production.builder()
+                        .id(1L)
+                        .productionStatus(ProductionStatus.SUSPENSION_OF_SALES)
+                        .build()));
+
+        //when
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> accountService.createAccount("testMemberId", 1L, 5000L))
+                .withMessageContaining("판매 중지된 계좌 상품입니다.");
     }
 }
