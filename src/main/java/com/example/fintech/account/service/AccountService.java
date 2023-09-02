@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Random;
 
 @Service
@@ -70,16 +71,98 @@ public class AccountService {
     }
 
     /**
+     * 계좌 해지
+     */
+    @Transactional
+    public AccountDto deleteAccount(String memberId, String accountNumber,
+                                    String simplePassword, String transferAccountNumber) {
+
+        Member member = this.memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
+
+        String storedPassword = member.getSimplePassword();
+        if (!simplePassword.equals(storedPassword)) {
+            throw new RuntimeException("간편 비밀번호가 일치하지 않습니다.");
+        }
+
+        Account account = this.accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("계좌번호가 존재하지 않습니다."));
+
+        boolean isSavingsAccount = account.getProduction().getProductionCategory().getId() > 1;
+
+        // 적금 계좌에 해당하는 경우
+        if (isSavingsAccount) {
+            if (transferAccountNumber == null) {
+                throw new RuntimeException("이체받을 계좌번호가 입력되지 않았습니다.");
+            } else {
+                Account transferAccount =
+                        this.accountRepository.findByAccountNumber(transferAccountNumber)
+                                .orElseThrow(() -> new RuntimeException(
+                                        "이체받을 계좌번호가 존재하지 않습니다."));
+                this.validateDeleteAccount(member, transferAccount);
+                this.balanceTransfer(account, transferAccount);
+            }
+        } else { // 입출금 계좌인 경우
+            this.validateDeleteAccount(member, account);
+            this.validateAccountBalance(account);
+        }
+
+        account.setAccountStatus(AccountStatus.UNREGISTERED);
+        account.setUnregisteredAt(LocalDateTime.now());
+
+        this.accountRepository.save(account);
+
+        return AccountDto.fromEntity(account);
+    }
+
+    /**
+     * 적금 해지 시, 입력받은 계좌로 잔액 이동
+     */
+    private void balanceTransfer(Account account, Account transferAccount) {
+        Long transferAccountBalance = transferAccount.getBalance() + account.getBalance();
+        transferAccount.setBalance(transferAccountBalance);
+        account.setBalance(0L);
+
+        this.accountRepository.save(transferAccount);
+        this.accountRepository.save(account);
+    }
+
+    /**
      * 계좌 생성 검증 부분
      */
     private void validateCreateAccount(Member member, Production production) {
         // 사용자 보유 계좌 확인
-        if(this.accountRepository.countByMember(member) >= 5) {
+        if (this.accountRepository.countByMember(member) >= 5) {
             throw new RuntimeException("사용자 최대 보유 가능 계좌는 5개 입니다.");
         }
         // 계좌 상품 판매 상태 확인
-        if(production.getProductionStatus() == ProductionStatus.SUSPENSION_OF_SALES) {
+        if (production.getProductionStatus() == ProductionStatus.SUSPENSION_OF_SALES) {
             throw new RuntimeException("판매 중지된 계좌 상품입니다.");
+        }
+    }
+
+    /**
+     * 계좌 해지 검증 부분
+     */
+    private void validateDeleteAccount(Member member, Account account) {
+        // 사용자 아이디와 계좌 소유주 확인
+        if (!Objects.equals(member.getId(), account.getMember().getId())) {
+            throw new RuntimeException("사용자와 계좌 소유주가 일치하지 않습니다.");
+        }
+        // 계좌번호가 이미 해지 상태인 경우
+        if (account.getAccountStatus() == AccountStatus.UNREGISTERED) {
+            throw new RuntimeException("이미 해지된 계좌입니다.");
+        }
+    }
+
+    /**
+     * 입출금 계좌 잔액 검사 메서드 (적금 계좌 상품은 제외)
+     */
+    private void validateAccountBalance(Account account) {
+        // 입출금 계좌에 잔액이 있는 경우
+        Long productionCategoryId = account.getProduction().getProductionCategory().getId();
+        if ((productionCategoryId == 1) && account.getBalance() > 0) {
+            throw new RuntimeException("해당 계좌에 잔액이 존재합니다.");
         }
     }
 

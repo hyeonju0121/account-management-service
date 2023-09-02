@@ -1,6 +1,7 @@
 package com.example.fintech.account.dto;
 
 import com.example.fintech.account.domain.Account;
+import com.example.fintech.account.type.AccountStatus;
 import com.example.fintech.production.type.ProductionType;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class AccountDto {
     private String memberName;
 
     private Long balance;
+    private AccountStatus accountStatus;
 
     private LocalDateTime registeredAt;
     private LocalDateTime maturityAt;
@@ -35,6 +37,7 @@ public class AccountDto {
                 .memberId(account.getMember().getMemberId())
                 .memberName(account.getMember().getName())
                 .balance(account.getBalance())
+                .accountStatus(account.getAccountStatus())
                 .registeredAt(account.getRegisteredAt())
                 .maturityAt(account.getMaturityAt())
                 .unregisteredAt(account.getUnregisteredAt())
