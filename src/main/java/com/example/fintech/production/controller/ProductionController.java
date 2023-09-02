@@ -35,11 +35,11 @@ public class ProductionController {
     /**
      * 계좌 상품 판매 중지 API
      */
-    @PutMapping ("/production/stop/{productionId}")
+    @DeleteMapping("/production")
     public StopProduction.Response stopProduction(
-            @PathVariable Long productionId){
+            @RequestBody StopProduction.Request request){
 
-        var result = this.productionService.stopProduction(productionId);
+        var result = this.productionService.stopProduction(request.getProductionId());
         return StopProduction.Response.from(result);
     }
 

@@ -4,6 +4,16 @@ import com.example.fintech.production.type.ProductionStatus;
 import lombok.*;
 
 public class StopProduction {
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Request {
+        private Long productionId;
+
+        public Request(Long productionId) {
+            this.productionId = productionId;
+        }
+    }
 
     @Getter
     @Setter

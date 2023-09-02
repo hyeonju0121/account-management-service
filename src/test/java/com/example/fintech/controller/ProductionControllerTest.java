@@ -3,6 +3,7 @@ package com.example.fintech.controller;
 import com.example.fintech.production.controller.ProductionController;
 import com.example.fintech.production.dto.CreateProduction;
 import com.example.fintech.production.dto.ProductionDto;
+import com.example.fintech.production.dto.StopProduction;
 import com.example.fintech.production.dto.UpdateProduction;
 import com.example.fintech.production.service.ProductionService;
 import com.example.fintech.production.type.InterestPaymentMethod;
@@ -75,18 +76,18 @@ public class ProductionControllerTest {
     void successStopProduction() throws Exception {
         //given
         Long productionId = 1L;
-        ProductionDto updatedProductionDto = ProductionDto.builder()
-                .productionStatus(ProductionStatus.SUSPENSION_OF_SALES)
-                .build();
-
-        when(productionService.stopProduction(productionId))
-                .thenReturn(updatedProductionDto);
-
+        given(productionService.stopProduction(anyLong()))
+                .willReturn(ProductionDto.builder()
+                        .productionId(productionId)
+                        .productionStatus(ProductionStatus.SUSPENSION_OF_SALES)
+                        .build());
         //when, then
-        mockMvc.perform(put("/production/stop/{productionId}", productionId)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/production")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new StopProduction.Request(1L))))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.productionId").value(productionId))
                 .andExpect(jsonPath("$.productionStatus").value("SUSPENSION_OF_SALES"))
                 .andDo(print());
 
