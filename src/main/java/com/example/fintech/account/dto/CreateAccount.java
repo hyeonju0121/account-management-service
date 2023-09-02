@@ -3,6 +3,8 @@ package com.example.fintech.account.dto;
 import com.example.fintech.production.type.ProductionType;
 import lombok.*;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class CreateAccount {
@@ -11,8 +13,12 @@ public class CreateAccount {
     @AllArgsConstructor
     @Builder
     public static class Request {
+        @NotNull
         private String memberId;
+        @NotNull
         private Long productionId; // 가입할 계좌 상품 번호
+        @NotNull
+        @Min(5000)
         private Long balance;
     }
 
